@@ -1,7 +1,7 @@
 {
   "name": "@codice-progressio/easy-permissions",
-  "version": "0.0.1",
-  "description": "Permisos fáciles de crear y administrar. ",
+  "version": "0.0.0",
+  "description": "Permisos fáciles de crear y administrar.",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/RafaelAngelRamirez/easy-permissions/issues"
   },
-  "homepage": "https://github.com/RafaelAngelRamirez/easy-permissions#readme"
+  "homepage": "https://github.com/RafaelAngelRamirez/easy-permissions#readme",
+  "publishConfig": {
+    "access": "public"
+  }
 }
