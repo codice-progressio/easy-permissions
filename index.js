@@ -1,3 +1,3 @@
-export function easyPermissions () {
-  console.log("Hello word")
+module.exports = function () {
+  return "Hola mundo"
 }
