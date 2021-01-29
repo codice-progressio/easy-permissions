@@ -18,5 +18,8 @@
   "homepage": "https://github.com/RafaelAngelRamirez/easy-permissions#readme",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "express-jwt-permissions": "^1.3.3"
   }
 }
