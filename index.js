@@ -45,7 +45,7 @@ function comprobarFicheroPermisos(conf) {
   //El fichero debe de existir, si no se crea.
   const dir = conf.path.concat(conf.nombreCarpetaPermisos)
   const file = conf.nombreArchivoPermisos
-  const file2 = "_" + conf.nombreCarpetaPermisos
+  const file2 = "_" + conf.nombreArchivoPermisos
   const dirFichero = dir.concat("/" + file)
   const dirFichero2 = dir.concat("/" + file2)
 
@@ -125,7 +125,7 @@ module.exports.$ = (
 
     // Si no existe el permiso lo agregamos.
     let texto = data.toString().split("\n")
-    let texto2 = data.toString().split("\n")
+    let texto2 = data2.toString().split("\n")
     // Estructuramos
     let nuevaLinea = `  "${permiso}":"${descripcion}",`
     let nuevaLinea2 = `  "${permiso}":"${permiso}",`
