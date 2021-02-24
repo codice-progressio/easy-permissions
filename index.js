@@ -1,6 +1,10 @@
 const fs = require("fs")
 const guard = require("express-jwt-permissions")()
-let rutaCompletaFichero = ""
+
+/**
+ * Un objeto con clave fichero1, fichero2
+ */
+let rutaCompletaFichero = {}
 
 const configuraciones = {
   // El path del fichero en el cual se van a estar agregando
@@ -8,7 +12,7 @@ const configuraciones = {
   path: "./",
   // El nombre del archivo que se buscara.
   nombreArchivoPermisos: "permisos.seguridad.js",
-// El nombre de la carpeta
+  // El nombre de la carpeta
   nombreCarpetaPermisos: "seguridad",
   // Generalmente recibe process.env.NODE_ENV
   modoProduccion: true,
@@ -19,7 +23,7 @@ const configuraciones = {
   nombreParametroRequest: "permisoSolicitado",
   // Por defecto detiene la generación del archivo. Mantenerlo por defecto
   // en false impide que se registre cada tecla nueva dentro del permiso como
-  // una nueva linea en caso de usar auto-guardado. 
+  // una nueva linea en caso de usar auto-guardado.
   generarPermisos: false,
 }
 
@@ -41,14 +45,18 @@ function comprobarFicheroPermisos(conf) {
   //El fichero debe de existir, si no se crea.
   const dir = conf.path.concat(conf.nombreCarpetaPermisos)
   const file = conf.nombreArchivoPermisos
+  const file2 = "_" + conf.nombreCarpetaPermisos
   const dirFichero = dir.concat("/" + file)
+  const dirFichero2 = dir.concat("/" + file2)
 
   if (!fs.existsSync(dir)) fs.mkdirSync(dir)
 
   let datos = `const permisos = {\r\n\r\n}\r\nmodule.exports = permisos`
 
   if (!fs.existsSync(dirFichero)) fs.appendFileSync(dirFichero, datos)
-  return dirFichero
+  if (!fs.existsSync(dirFichero2)) fs.appendFileSync(dirFichero2, datos)
+
+  return { fichero1: dirFichero, fichero2: dirFichero2 }
 }
 
 function comprobarConfiguraciones(conf) {
@@ -102,7 +110,8 @@ module.exports.$ = (
     // directamente.
 
     // Leemos este mesmo archivo.
-    var data = fs.readFileSync(rutaCompletaFichero, "utf-8")
+    const data = fs.readFileSync(rutaCompletaFichero.fichero1, "utf-8")
+    const data2 = fs.readFileSync(rutaCompletaFichero.fichero2, "utf-8")
 
     // En modo produccion, o en caso de que el permiso exista, regresa el permiso
     // la funcion segun este definido.
@@ -116,15 +125,19 @@ module.exports.$ = (
 
     // Si no existe el permiso lo agregamos.
     let texto = data.toString().split("\n")
+    let texto2 = data.toString().split("\n")
     // Estructuramos
     let nuevaLinea = `  "${permiso}":"${descripcion}",`
+    let nuevaLinea2 = `  "${permiso}":"${permiso}",`
 
     // Separamos el archivo en lineas.
     // Agregamos una nueva linea siempre en la segunda posicion
     texto.splice(1, 0, nuevaLinea)
+    texto2.splice(1, 0, nuevaLinea2)
     // Escribimos el archivo
 
-    fs.writeFileSync(rutaCompletaFichero, texto.join("\n"))
+    fs.writeFileSync(rutaCompletaFichero.fichero1, texto.join("\n"))
+    fs.writeFileSync(rutaCompletaFichero.fichero2, texto2.join("\n"))
   } catch (error) {
     throw new Error(msj("[ easyPermissions ] ", error))
   }
