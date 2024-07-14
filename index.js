@@ -7,6 +7,7 @@ const guard = require("express-jwt-permissions")()
  * @type {Object}
  */
 const permissions_description = {}
+let new_permission_added = false
 /**
  * Object representing permissions.
  * @type {Object}
@@ -135,12 +136,13 @@ module.exports.$ = (
     if (!configuraciones.generarPermisos)
       return opciones.esMiddleware ? funcion : permiso
 
+    new_permission_added = true
     permissions_description[permiso] = descripcion
     permissions_permission[permiso] = permiso
 
     function timer_execution() {
 
-      console.log("Guardando")
+      console.log(msj("[ easyPermissions ], ", "Saving permissions..."))
       const header = "const permisos = {\n"
       const footer = "\n}\n\nmodule.exports = permisos"
 
@@ -153,10 +155,14 @@ module.exports.$ = (
       clearTimeout(timer)
     }
 
-    if (!timer) timer = setTimeout(() => {
-      timer_execution()
+    if (!timer) timer = setInterval(() => {
+      if (!new_permission_added) { 
+        clearTimeout(timer)
+        timer_execution()
+        return 
+      } else new_permission_added = false
     }
-      , 1000
+      , 2000
     )
 
 
