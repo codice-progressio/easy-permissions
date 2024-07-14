@@ -1,6 +1,23 @@
 const fs = require("fs")
 const guard = require("express-jwt-permissions")()
 
+
+/**
+ * Object that stores the descriptions of permissions.
+ * @type {Object}
+ */
+const permissions_description = {}
+/**
+ * Object representing permissions.
+ * @type {Object}
+ */
+const permissions_permission = {}
+/**
+ * Saves timer for saving permissions.
+ * @type {undefined}
+ */
+let timer = undefined
+
 /**
  * Un objeto con clave fichero1, fichero2
  */
@@ -106,16 +123,11 @@ module.exports.$ = (
   }
 
   try {
-    // Modificamos este mismo archivo para agregar los permisos
-    // directamente.
-
-    // Leemos este mesmo archivo.
-    const data = fs.readFileSync(rutaCompletaFichero.fichero1, "utf-8")
-    const data2 = fs.readFileSync(rutaCompletaFichero.fichero2, "utf-8")
-
+    
+    const data = require(rutaCompletaFichero.fichero1)
     // En modo produccion, o en caso de que el permiso exista, regresa el permiso
     // la funcion segun este definido.
-    if (configuraciones.modoProduccion || data.includes(permiso))
+    if (configuraciones.modoProduccion || permiso in data )
       return opciones.esMiddleware ? funcion : permiso
 
     // Evita la continua generacion de elementos si no has terminado de
@@ -123,21 +135,31 @@ module.exports.$ = (
     if (!configuraciones.generarPermisos)
       return opciones.esMiddleware ? funcion : permiso
 
-    // Si no existe el permiso lo agregamos.
-    let texto = data.toString().split("\n")
-    let texto2 = data2.toString().split("\n")
-    // Estructuramos
-    let nuevaLinea = `  "${permiso}":"${descripcion}",`
-    let nuevaLinea2 = `  "${permiso}":"${permiso}",`
+    permissions_description[permiso] = descripcion
+    permissions_permission[permiso] = permiso
 
-    // Separamos el archivo en lineas.
-    // Agregamos una nueva linea siempre en la segunda posicion
-    texto.splice(1, 0, nuevaLinea)
-    texto2.splice(1, 0, nuevaLinea2)
-    // Escribimos el archivo
+    function timer_execution() {
 
-    fs.writeFileSync(rutaCompletaFichero.fichero1, texto.join("\n"))
-    fs.writeFileSync(rutaCompletaFichero.fichero2, texto2.join("\n"))
+      console.log("Guardando")
+      const header = "const permisos = {\n"
+      const footer = "\n}\n\nmodule.exports = permisos"
+
+
+      const permissions_description_string = JSON.stringify(permissions_description, null, 2).replace(/{/g, header).replace(/}/g, footer);
+      const permissions_permission_string = JSON.stringify(permissions_permission, null, 2).replace(/{/g, header).replace(/}/g, footer);
+      
+      fs.writeFileSync(rutaCompletaFichero.fichero1, permissions_description_string)
+      fs.writeFileSync(rutaCompletaFichero.fichero2, permissions_permission_string)
+      clearTimeout(timer)
+    }
+
+    if (!timer) timer = setTimeout(() => {
+      timer_execution()
+    }
+      , 1000
+    )
+
+
   } catch (error) {
     throw new Error(msj("[ easyPermissions ] ", error))
   }
