@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nyc --reporter=html --reporter=text mocha",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "release": "npx standard-version && git push --follow-tags && npm run build"
+    "release": "npx standard-version && git push --follow-tags && npm publish"
   },
   "author": "Rafael Ramirez",
   "license": "ISC",
