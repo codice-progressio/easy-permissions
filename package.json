@@ -1,6 +1,6 @@
 {
   "name": "@codice-progressio/easy-permissions",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Permisos fáciles de crear y administrar.",
   "main": "index.js",
   "scripts": {
