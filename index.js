@@ -6,7 +6,7 @@ const guard = require("express-jwt-permissions")()
  * Object that stores the descriptions of permissions.
  * @type {Object}
  */
-const permissions_description = {}
+let permissions_description = {}
 let new_permission_added = false
 /**
  * Object representing permissions.
@@ -128,7 +128,7 @@ module.exports.$ = (
     const data = require(rutaCompletaFichero.fichero1)
     // En modo produccion, o en caso de que el permiso exista, regresa el permiso
     // la funcion segun este definido.
-    if (configuraciones.modoProduccion || permiso in data )
+    if (configuraciones.modoProduccion )
       return opciones.esMiddleware ? funcion : permiso
 
     // Evita la continua generacion de elementos si no has terminado de
@@ -136,7 +136,7 @@ module.exports.$ = (
     if (!configuraciones.generarPermisos)
       return opciones.esMiddleware ? funcion : permiso
 
-    new_permission_added = true
+    permissions_description = {...data}
     permissions_description[permiso] = descripcion
     permissions_permission[permiso] = permiso
 
@@ -146,23 +146,32 @@ module.exports.$ = (
       const header = "const permisos = {\n"
       const footer = "\n}\n\nmodule.exports = permisos"
 
+      const permissions_description_sort = {}
+      const permissions_permission_sort = {}
 
-      const permissions_description_string = JSON.stringify(permissions_description, null, 2).replace(/{/g, header).replace(/}/g, footer);
-      const permissions_permission_string = JSON.stringify(permissions_permission, null, 2).replace(/{/g, header).replace(/}/g, footer);
-      
+      Object.keys(permissions_description).sort((a, b) => a > b ? 1 : -1).forEach(x => {
+        permissions_description_sort[x] = permissions_description[x]
+        permissions_permission_sort[x] = permissions_permission[x]
+       })
+
+      const permissions_description_string = JSON.stringify(permissions_description_sort, null, 2)
+                                                  .replace(/{/g, header)
+                                                  .replace(/}/g, footer);
+      const permissions_permission_string = JSON.stringify(permissions_permission_sort, null, 2)
+                                                  .replace(/{/g, header)
+                                                  .replace(/}/g, footer);
+
       fs.writeFileSync(rutaCompletaFichero.fichero1, permissions_description_string)
       fs.writeFileSync(rutaCompletaFichero.fichero2, permissions_permission_string)
       clearTimeout(timer)
     }
 
     if (!timer) timer = setInterval(() => {
-      if (!new_permission_added) { 
         clearTimeout(timer)
         timer_execution()
         return 
-      } else new_permission_added = false
     }
-      , 2000
+      , 5000
     )
 
 
